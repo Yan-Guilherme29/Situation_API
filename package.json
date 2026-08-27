@@ -1,0 +1,32 @@
+{
+  "name": "situation_api",
+  "version": "1.0.0",
+  "description": "API REST desenvolvida para a disciplina de **Desenvolvimento para Web II**, utilizando **Node.js, TypeScript e Express**, com persistência de dados em **MySQL** através do **TypeORM**.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "watch": "tsc --watch",
+    "start:watch": "concurrently \"npm run watch\" \"node --watch dist/index.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yan-Guilherme29/Situation_API.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yan-Guilherme29/Situation_API/issues"
+  },
+  "homepage": "https://github.com/Yan-Guilherme29/Situation_API#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.0",
+    "ts-node": "^10.9.2"
+  }
+}
