@@ -2,7 +2,6 @@
   "name": "situation_api",
   "version": "1.0.0",
   "description": "API REST desenvolvida para a disciplina de **Desenvolvimento para Web II**, utilizando **Node.js, TypeScript e Express**, com persistência de dados em **MySQL** através do **TypeORM**.",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -22,11 +21,17 @@
   },
   "homepage": "https://github.com/Yan-Guilherme29/Situation_API#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.24.2",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^1.1.0"
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",
     "@types/node": "^26.4.0",
+    "concurrently": "^9.2.1",
     "ts-node": "^10.9.2"
   }
 }
