@@ -144,7 +144,7 @@ Projeto desenvolvido como parte da disciplina de **Desenvolvimento para Web II**
 
 ## 🔗 Autor
 
-Yan Guilherme Siqueira Gomides
+**Yan Guilherme Siqueira Gomides**
 
 <a href="https://www.linkedin.com/in/yan-guilherme-dev-backend/" target="_blank">
   <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white" alt="LinkedIn">
