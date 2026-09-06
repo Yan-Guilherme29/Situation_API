@@ -8,12 +8,59 @@ import { Situation } from '../entity/Situations';
 // Criar Aplicação Express
 const router = express.Router();
 
-// Criar Rota GET principal
-router.get('/situations', (_request: Request, response: Response) => {
-    response.send('API funcionando! Tela de situations da Rota!');
+// Criar a rota para listar todas as situações
+router.get('/situations', async (req: Request, res: Response) => {
+
+    try {
+        const SituationRepository = AppDataSource.getRepository(Situation);
+        const situations = await SituationRepository.find();
+
+        res.status(200).json(situations);
+        return
+
+    } catch (error) {
+        res.status(500).json({
+            mensagem: 'Erro ao listar situações!',
+        });
+        return
+    }
+
 });
 
-// Criar Rota Post
+// Criar a rota para buscar uma situação pelo ID
+router.get('/situations/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        const SituationRepository = AppDataSource.getRepository(Situation);
+
+        const situations = await SituationRepository.findOneBy({ id: parseInt(id) });
+
+        if (!situations) {
+            res.status(404).json({
+                mensagem: 'Situação não encontrada!',
+            });
+            return
+
+        }
+
+        res.status(200).json(situations);
+        return
+
+    } catch (error) {
+        res.status(500).json({
+            mensagem: 'Erro ao buscar situação!',
+        });
+        return
+    }
+
+});
+
+
+// Criar a rota para criar uma nova situação
 router.post('/situations', async (req: Request, res: Response) => {
 
     try {
