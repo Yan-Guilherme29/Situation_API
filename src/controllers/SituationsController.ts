@@ -87,6 +87,46 @@ router.post('/situations', async (req: Request, res: Response) => {
 
 });
 
+// Criar a rota para atualizar uma situação existente
+router.put('/situations/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        var data = req.body;
+
+        const SituationRepository = AppDataSource.getRepository(Situation);
+
+        const situation = await SituationRepository.findOneBy({ id: parseInt(id) });
+
+        if (!situation) {
+            res.status(404).json({
+                mensagem: 'Situação não encontrada!',
+            });
+            return
+        }
+
+        // Atualiza os dados da situação
+        SituationRepository.merge(situation, data);
+
+        // Salvar as alterações de dados
+        const updatedSituation = await SituationRepository.save(situation);
+
+        res.status(200).json({
+            mensagem: 'Situação atualizada com sucesso!',
+            situation: updatedSituation,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            mensagem: 'Erro ao atualizar situação!',
+        });
+    }
+
+});
+
 
 // Exportar o roteador
 export default router;
