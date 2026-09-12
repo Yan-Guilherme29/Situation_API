@@ -127,6 +127,39 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
 
 });
 
+// Criar a rota para deletar uma situação existente
+router.delete('/situations/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        const SituationRepository = AppDataSource.getRepository(Situation);
+
+        const situation = await SituationRepository.findOneBy({ id: parseInt(id) });
+
+        if (!situation) {
+            res.status(404).json({
+                mensagem: 'Situação não encontrada!',
+            });
+            return
+        }
+
+        // Deletar a situação
+        await SituationRepository.remove(situation);
+
+        res.status(200).json({
+            mensagem: 'Situação deletada com sucesso!',
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            mensagem: 'Erro ao deletar situação!',
+        });
+    }
+
+});
 
 // Exportar o roteador
 export default router;
