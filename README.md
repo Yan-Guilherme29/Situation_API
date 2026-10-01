@@ -127,7 +127,7 @@ A API estará disponível localmente na porta configurada pelo projeto.
 Exemplo:
 
 ```text
-http://localhost:3000
+http://localhost:8080
 ```
 
 ---
