@@ -22,10 +22,6 @@ import SituationsController from './controllers/SituationsController.js';
 app.use('/', AuthController);
 app.use('/', SituationsController);
 
-
-// Iniciar o Servidor na porta 8080
-const port = 8080;
-
 app.listen(process.env.PORT, () => {
 	console.log(`Servidor rodando na porta ${process.env.PORT} http://localhost:${process.env.PORT}`);
 });
