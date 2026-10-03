@@ -96,6 +96,7 @@ router.post('/situations', async (req: Request, res: Response) => {
         res.status(500).json({
             mensagem: 'Erro ao criar situação!',
         });
+        console.error(error);
     }
 
 });
