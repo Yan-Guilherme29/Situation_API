@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entity/Users";
 import { Situation} from "./entity/Situations";
+import { ProductCategory } from "./entity/ProductCategories";
 
 
 // Importar variáveis de ambiente
@@ -20,7 +21,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: false,
     logging: true,
-    entities: [ User, Situation],
+    entities: [ User, Situation, ProductCategory],
     migrations: [__dirname + "/migration/*.js"],
     subscribers: [],
 });
