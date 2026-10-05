@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 import { User } from "./entity/Users";
 import { Situation} from "./entity/Situations";
 import { ProductCategory } from "./entity/ProductCategories";
-
+import { ProductSituation } from "./entity/ProductSituations";
 
 // Importar variáveis de ambiente
 import dotenv from 'dotenv';
@@ -21,7 +21,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: false,
     logging: true,
-    entities: [ User, Situation, ProductCategory],
+    entities: [ User, Situation, ProductCategory, ProductSituation],
     migrations: [__dirname + "/migration/*.js"],
     subscribers: [],
 });
