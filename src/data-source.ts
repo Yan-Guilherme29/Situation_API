@@ -4,6 +4,7 @@ import { User } from "./entity/Users";
 import { Situation} from "./entity/Situations";
 import { ProductCategory } from "./entity/ProductCategories";
 import { ProductSituation } from "./entity/ProductSituations";
+import { Product } from "./entity/Products";
 
 // Importar variáveis de ambiente
 import dotenv from 'dotenv';
@@ -21,7 +22,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: false,
     logging: true,
-    entities: [ User, Situation, ProductCategory, ProductSituation],
+    entities: [ User, Situation, ProductCategory, ProductSituation, Product],
     migrations: [__dirname + "/migration/*.js"],
     subscribers: [],
 });

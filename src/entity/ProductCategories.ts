@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Product } from "./Products";
 
 
 @Entity('product_categories')
@@ -8,6 +9,9 @@ export class ProductCategory {
 
     @Column({unique: true})
     name!: string;
+
+    @OneToMany(() => Product, (product) => product.category)
+    products!: Product[];
 
     @Column({type: 'timestamp', default: () => "CURRENT TIMESTAMP"})
     createdAt!: Date;
