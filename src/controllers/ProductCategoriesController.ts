@@ -163,6 +163,43 @@ router.put('/product-categories/:id', async (req: Request, res: Response) => {
 
 });
 
+// Criar rota para deletar uma categoria de produto existente
+router.delete('/product-categories/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        const productCategoryRepository = AppDataSource.getRepository(ProductCategory);
+
+        const productCategory = await productCategoryRepository.findOneBy({ id: parseInt(id) });
+
+        if (!productCategory) {
+            res.status(404).json({
+                mensagem: 'Categoria de produto não encontrada!',
+            });
+            return;
+        }
+
+        // Deletar a categoria de produto
+        await productCategoryRepository.remove(productCategory);
+
+        res.status(200).json({
+            mensagem: 'Categoria de produto deletada com sucesso!',
+        });
+        return;
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao deletar categoria de produto!',
+        });
+    }
+
+});
+
 // Exportar o roteador
 export default router;
 
