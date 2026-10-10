@@ -116,6 +116,53 @@ router.post('/product-categories', async (req: Request, res: Response) => {
 
 });
 
+// Criar rota para atualizar uma categoria de produto existente
+router.put('/product-categories/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        const data = req.body;
+
+        // Obter o repositório da entidade ProductCategory
+        const productCategoryRepository = AppDataSource.getRepository(ProductCategory);
+
+        // Buscar a categoria de produto pelo ID
+        const productCategory = await productCategoryRepository.findOneBy({ id: parseInt(id)});
+
+        // Verificar se a categoria de produto foi encontrada
+        if (!productCategory) {
+            res.status(404).json({
+                mensagem: 'Categoria de produto não encontrada!',
+            });
+            return;
+        }
+
+        // Atualizar a categoria de produto
+        productCategoryRepository.merge(productCategory, data);
+
+        // Salvar as alterações no banco de dados
+        const updatedProductCategory = await productCategoryRepository.save(productCategory);
+
+        // Retornar a resposta com a categoria de produto atualizada
+        res.status(200).json({
+            mensagem: 'Categoria de produto atualizada com sucesso!',
+            categoria: updatedProductCategory,
+        });
+        return;
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao atualizar categoria de produto!',
+        });
+    }
+
+});
+
 // Exportar o roteador
 export default router;
 
