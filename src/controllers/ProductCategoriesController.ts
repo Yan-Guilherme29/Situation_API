@@ -10,6 +10,7 @@ import { ProductCategory } from '../entity/ProductCategories';
 // Criar Aplicação Express
 const router = express.Router();
 
+// Criar a rota para listar todas as categorias de produtos
 router.get('/product-categories', async (req: Request, res: Response) => {
 
     try {
@@ -39,6 +40,39 @@ router.get('/product-categories', async (req: Request, res: Response) => {
         return
 
     }
+});
+
+// Criar rota para criar uma nova categoria de produto
+router.post('/product-categories', async (req: Request, res: Response) => {
+
+    try {
+
+        const data = req.body;
+
+        // Obter o repositório da entidade ProductCategory
+        const productCategoryRepository = AppDataSource.getRepository(ProductCategory);
+        
+        // Criar uma nova categoria de produto
+        const newProductCategory = productCategoryRepository.create(data);
+
+        // Salvar a nova categoria de produto no banco de dados
+        const savedProductCategory = await productCategoryRepository.save(newProductCategory);
+
+        // Retornar a resposta com a categoria de produto criada
+        res.status(201).json({
+            mensagem: 'Categoria de produto criada com sucesso!',
+            categoria: savedProductCategory,
+        });
+        return
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao criar categoria de produto!',
+        });
+    }
+
 });
 
 
