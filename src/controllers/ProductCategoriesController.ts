@@ -42,6 +42,47 @@ router.get('/product-categories', async (req: Request, res: Response) => {
     }
 });
 
+// Criar a rota para buscar uma categoria de produto pelo ID
+router.get('/product-categories/:id', async (req: Request, res: Response) => {
+
+    try {   
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        // Obter o repositório da entidade ProductCategory
+        const productCategoryRepository = AppDataSource.getRepository(ProductCategory);
+
+        // Buscar a categoria de produto pelo ID
+        const productCategory = await productCategoryRepository.findOneBy({ id: parseInt(id)});
+
+        // Verificar se a categoria de produto foi encontrada
+        if (!productCategory) {
+            res.status(404).json({
+                mensagem: 'Categoria de produto não encontrada!',
+            });
+            return;
+        }
+
+        // Retornar a resposta com a categoria de produto encontrada
+        res.status(200).json({
+            categoria: productCategory,
+        });
+        return
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao buscar categoria de produto!',
+
+        });
+        return
+    }
+
+});
+
+
 // Criar rota para criar uma nova categoria de produto
 router.post('/product-categories', async (req: Request, res: Response) => {
 
@@ -74,8 +115,6 @@ router.post('/product-categories', async (req: Request, res: Response) => {
     }
 
 });
-
-
 
 // Exportar o roteador
 export default router;
