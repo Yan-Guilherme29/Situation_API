@@ -41,6 +41,55 @@ router.get('/products', async (req: Request, res: Response) => {
     }
 });
 
+// Criar a rota para buscar um produto pelo ID
+router.get('/products/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        // Obter o repositório da entidade Product
+        const productRepository = AppDataSource.getRepository(Product);
+
+        // Buscar o produto pelo ID com as relações de categoria e situação
+        const product = await productRepository.findOne({
+
+            where: { id: parseInt(id) },
+            relations: {
+                category: true,
+                situation: true
+            }
+
+        });
+
+        // Verificar se o produto foi encontrado
+        if (!product) {
+            res.status(404).json({
+                mensagem: 'Produto não encontrado!'
+            });
+            return
+        }
+
+        // Retornar a resposta com o produto encontrado
+        res.status(200).json({
+            produto: product
+        });
+        return
+
+
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao buscar produto!'
+        });
+        return
+
+    }
+});
+
 // Criar a rota para criar um novo produto
 router.post('/products', async (req: Request, res: Response) => {
 
