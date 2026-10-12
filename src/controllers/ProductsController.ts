@@ -124,6 +124,100 @@ router.post('/products', async (req: Request, res: Response) => {
 
 });
 
+// Criar a rota para atualizar um produto existente
+router.put('/products/:id', async(req: Request, res: Response) => {
+
+    try {
+
+        // Obter o ID do produto a ser atualizado
+        const idParam = req.params.id;
+        // Verificar se o ID é um array e obter o primeiro elemento, caso seja
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        // Obter os dados do corpo da requisição
+        const data = req.body;
+
+        // Obter o repositório da entidade Product
+        const productRepository = AppDataSource.getRepository(Product);
+
+        // Buscar o produto pelo ID
+        const product = await productRepository.findOneBy({ id: parseInt(id) });
+
+        // Verificar se o produto foi encontrado
+        if (!product) {
+            res.status(404).json({
+                mensagem: 'Produto não encontrado!'
+            });
+            return
+        }
+
+        // Atualizar os dados do produto
+        productRepository.merge(product, data);
+
+        // Salvar as alterações no banco de dados
+        const updatedProduct = await productRepository.save(product);
+
+        // Retornar a resposta com o produto atualizado
+        res.status(200).json({
+            mensagem: 'Produto atualizado com sucesso!',
+            produto: updatedProduct,
+        });
+        return
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao atualizar produto!'
+        });
+
+    }
+
+});
+
+// Criar a rota para deletar um produto existente
+router.delete('/products/:id', async (req: Request, res: Response) => {
+
+    try {
+
+        // Obter o ID do produto a ser deletado
+        const idParam = req.params.id;
+        // Verificar se o ID é um array e obter o primeiro elemento, caso seja
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        // Obter o repositório da entidade Product
+        const productRepository = AppDataSource.getRepository(Product);
+
+        // Buscar o produto pelo ID
+        const product = await productRepository.findOneBy({ id: parseInt(id) });
+
+        // Verificar se o produto foi encontrado
+        if (!product) {
+            res.status(404).json({
+                mensagem: 'Produto não encontrado!'
+            });
+            return
+        }
+
+        // Deletar o produto do banco de dados
+        await productRepository.remove(product);
+
+        // Retornar a resposta de sucesso
+        res.status(200).json({
+            mensagem: 'Produto deletado com sucesso!'
+        });
+        return
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            mensagem: 'Erro ao deletar produto!'
+        });
+        return
+
+    }
+});
 
 // Exportar o roteador
 export default router;
