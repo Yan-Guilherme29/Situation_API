@@ -1,5 +1,7 @@
 import { AppDataSource } from "./data-source";
 import CreateSituationsSeeds from "./seeds/CreateSituationsSeeds";
+import CreateProductCategoriesSeeds from "./seeds/CreateProductCategoriesSeeds";
+import CreateProductSituationsSeeds from "./seeds/CreateProductSituationsSeeds";
 
 const runSeeds = async () => {
     console.log("Conectando ao banco de dados...");
@@ -12,8 +14,20 @@ const runSeeds = async () => {
         // Criar instância da classe CreateSituationsSeeds
         const situationsSeeds = new CreateSituationsSeeds();
 
+        // Criar instância da classe CreateProductCategoriesSeeds
+        const productCategoriesSeeds = new CreateProductCategoriesSeeds();
+
+        // Criar instância da classe CreateProductSituationsSeeds
+        const productSituationsSeeds = new CreateProductSituationsSeeds();
+
         // Executa as seeds de situações
         await situationsSeeds.run(AppDataSource);
+
+        // Executa as seeds de categorias
+        await productCategoriesSeeds.run(AppDataSource);
+
+        // Executa as seeds de situações de produtos
+        await productSituationsSeeds.run(AppDataSource);
 
     }
 
