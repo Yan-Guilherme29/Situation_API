@@ -13,6 +13,9 @@ const app = express();
 // Criar um middleware para analisar o corpo das requisições como JSON
 app.use(express.json());
 
+// Formatar a saída JSON com 2 espaços de indentação
+app.set('json spaces', 2);
+
 // Inclurir os Controllers
 import AuthController from './controllers/AuthController.js';
 import SituationsController from './controllers/SituationsController.js';
