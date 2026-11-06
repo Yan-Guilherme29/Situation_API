@@ -5,6 +5,7 @@ import type { Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
 import { Situation } from '../entity/Situations';
 import { PaginationService } from '../services/PaginationsServices';
+import { ErrorMappingService } from "../services/ErrorMappingService";
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -25,21 +26,22 @@ router.get('/situations', async (req: Request, res: Response) => {
 
         const result = await PaginationService.paginate(situationRepository, page, limit, { id: 'DESC' });
 
-        
+
 
         // Retornar a resposta com as situações e informações de paginação
         res.status(200).json(result);
-        return  
+        return
 
     } catch (error) {
-        res.status(500).json({
-            mensagem: 'Erro ao listar situações!',
-        });
-        return
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação');
+        res.status(status).json({ mensagem: message })
+
     }
 
 });
-
 // Criar a rota para buscar uma situação pelo ID
 router.get('/situations/:id', async (req: Request, res: Response) => {
 
@@ -64,10 +66,13 @@ router.get('/situations/:id', async (req: Request, res: Response) => {
         return
 
     } catch (error) {
-        res.status(500).json({
-            mensagem: 'Erro ao buscar situação!',
-        });
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação');
+        res.status(status).json({ mensagem: message })
         return
+
     }
 
 });
@@ -82,21 +87,22 @@ router.post('/situations', async (req: Request, res: Response) => {
         const SituationRepository = AppDataSource.getRepository(Situation);
 
         const newSituation = SituationRepository.create(data);
-        
+
         await SituationRepository.save(newSituation);
 
         res.status(201).json({
             mensagem: 'Situação criada com sucesso!',
             situation: newSituation,
         });
-    
+
 
     } catch (error) {
 
-        res.status(500).json({
-            mensagem: 'Erro ao criar situação!',
-        });
         console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação');
+        res.status(status).json({ mensagem: message })
+
     }
 
 });
@@ -134,9 +140,12 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            mensagem: 'Erro ao atualizar situação!',
-        });
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação');
+        res.status(status).json({ mensagem: message })
+
     }
 
 });
@@ -168,9 +177,12 @@ router.delete('/situations/:id', async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            mensagem: 'Erro ao deletar situação!',
-        });
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação');
+        res.status(status).json({ mensagem: message })
+
     }
 
 });
