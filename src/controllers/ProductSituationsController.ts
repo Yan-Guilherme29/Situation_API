@@ -1,6 +1,7 @@
 import express from 'express';
 import { AppDataSource } from '../data-source';
 import { PaginationService } from '../services/PaginationsServices';
+import { ErrorMappingService } from '../services/ErrorMappingService';
 import { Request, Response } from 'express';
 import { ProductSituation } from '../entity/ProductSituations';
 
@@ -31,10 +32,9 @@ router.get('/product-situations', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-
-        res.status(500).json({
-            mensagem: 'Erro ao listar situações de produtos!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação de produto');
+        res.status(status).json({ mensagem: message });
         return
 
     }
@@ -71,10 +71,9 @@ router.get('/product-situations/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao buscar situação de produto!',
-
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação de produto');
+        res.status(status).json({ mensagem: message });
         return
     }
 
@@ -107,9 +106,9 @@ router.post('/product-situations', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao criar situação de produto!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação de produto');
+        res.status(status).json({ mensagem: message });
     }
 
 });
@@ -154,9 +153,9 @@ router.put('/product-situations/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao atualizar situação de produto!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação de produto');
+        res.status(status).json({ mensagem: message });
     }
 
 });
@@ -191,9 +190,9 @@ router.delete('/product-situations/:id', async (req: Request, res: Response) => 
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao deletar situação de produto!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'situação de produto');
+        res.status(status).json({ mensagem: message });
     }
 
 });     
