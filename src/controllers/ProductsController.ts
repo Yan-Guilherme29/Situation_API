@@ -5,6 +5,7 @@ import { AppDataSource } from '../data-source';
 import { Request, Response } from 'express';
 import { Product } from '../entity/Products';
 import { PaginationService } from '../services/PaginationsServices';
+import { ErrorMappingService } from '../services/ErrorMappingService';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -33,9 +34,9 @@ router.get('/products', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao listar produtos!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'produto');
+        res.status(status).json({ mensagem: message });
         return
 
     }
@@ -82,9 +83,9 @@ router.get('/products/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao buscar produto!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'produto');
+        res.status(status).json({ mensagem: message });
         return
 
     }
@@ -116,9 +117,9 @@ router.post('/products', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({ 
-            mensagem: 'Erro ao criar produto!' 
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'produto');
+        res.status(status).json({ mensagem: message });
 
     }
 
@@ -167,9 +168,9 @@ router.put('/products/:id', async(req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao atualizar produto!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'produto');
+        res.status(status).json({ mensagem: message });
 
     }
 
@@ -211,9 +212,9 @@ router.delete('/products/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao deletar produto!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'produto');
+        res.status(status).json({ mensagem: message });
         return
 
     }
