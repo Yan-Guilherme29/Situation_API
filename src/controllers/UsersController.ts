@@ -5,6 +5,7 @@ import { AppDataSource } from '../data-source';
 import { Request, Response } from 'express';
 import { User } from '../entity/Users';
 import { PaginationService } from '../services/PaginationsServices';
+import { ErrorMappingService } from '../services/ErrorMappingService';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -33,9 +34,9 @@ router.get('/users', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao listar usuários!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
         return
 
     }
@@ -81,9 +82,9 @@ router.get('/users/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao buscar usuário!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
         return
 
     }
@@ -115,9 +116,9 @@ router.post('/users', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({ 
-            mensagem: 'Erro ao criar usuário!' 
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
 
     }
 
@@ -166,9 +167,9 @@ router.put('/users/:id', async(req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao atualizar usuário!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
 
     }
 
@@ -210,9 +211,9 @@ router.delete('/users/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao deletar usuário!'
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
         return
 
     }
