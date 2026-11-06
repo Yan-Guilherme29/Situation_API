@@ -3,6 +3,7 @@
 import express from 'express';
 import { AppDataSource } from '../data-source';
 import { PaginationService } from '../services/PaginationsServices';
+import { ErrorMappingService } from '../services/ErrorMappingService';
 import { Request, Response } from 'express';
 import { ProductCategory } from '../entity/ProductCategories';
 
@@ -33,10 +34,9 @@ router.get('/product-categories', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-
-        res.status(500).json({
-            mensagem: 'Erro ao listar categorias de produtos!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'categoria de produto');
+        res.status(status).json({ mensagem: message });
         return
 
     }
@@ -73,10 +73,9 @@ router.get('/product-categories/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao buscar categoria de produto!',
-
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'categoria de produto');
+        res.status(status).json({ mensagem: message });
         return
     }
 
@@ -109,9 +108,9 @@ router.post('/product-categories', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao criar categoria de produto!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'categoria de produto');
+        res.status(status).json({ mensagem: message });
     }
 
 });
@@ -156,9 +155,9 @@ router.put('/product-categories/:id', async (req: Request, res: Response) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao atualizar categoria de produto!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'categoria de produto');
+        res.status(status).json({ mensagem: message });
     }
 
 });
@@ -193,13 +192,12 @@ router.delete('/product-categories/:id', async (req: Request, res: Response) => 
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({
-            mensagem: 'Erro ao deletar categoria de produto!',
-        });
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'categoria de produto');
+        res.status(status).json({ mensagem: message });
     }
 
 });
 
 // Exportar o roteador
 export default router;
-
