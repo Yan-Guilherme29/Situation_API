@@ -1,4 +1,5 @@
 import { Repository, ObjectLiteral, FindOptionsOrder, FindOptionsRelations } from "typeorm";
+import { InvalidPageError } from "./InvalidPageError";
 
 interface PaginationResult <T> {
     error: boolean;
@@ -26,7 +27,7 @@ export class PaginationService {
         const lastPage = Math.ceil(totalRecords / limit);
 
         if(page > lastPage && lastPage > 0) {
-            throw new Error (`Página ${page} inválida. Total de páginas: ${lastPage}`);
+            throw new InvalidPageError (`Página ${page} inválida. Total de páginas: ${lastPage}`);
         }
 
         const offset = (page - 1) * limit;
