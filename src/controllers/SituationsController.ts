@@ -6,6 +6,7 @@ import { AppDataSource } from '../data-source';
 import { Situation } from '../entity/Situations';
 import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from "../services/ErrorMappingService";
+import * as yup from 'yup';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -84,6 +85,14 @@ router.post('/situations', async (req: Request, res: Response) => {
     try {
         var data = req.body;
 
+        const schema = yup.object().shape({
+            nameSituation: yup.string().required('O campo "nameSituation" é obrigatório.')
+            .min(3, 'O campo "nameSituation" deve ter no mínimo 3 caracteres.')
+        });
+
+        await schema.validate(data, { abortEarly: false });
+
+
         const SituationRepository = AppDataSource.getRepository(Situation);
 
         const newSituation = SituationRepository.create(data);
@@ -97,6 +106,14 @@ router.post('/situations', async (req: Request, res: Response) => {
 
 
     } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            res.status(400).json({
+                mensagem: 'Erro de validação!',
+                erros: error.errors
+            });
+            return;
+        }
 
         console.error(error);
         // Mapear o erro para uma resposta adequada
@@ -116,6 +133,13 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
         const id = Array.isArray(idParam) ? idParam[0] : idParam;
 
         var data = req.body;
+
+        const schema = yup.object().shape({
+            nameSituation: yup.string().required('O campo "nameSituation" é obrigatório.')
+            .min(3, 'O campo "nameSituation" deve ter no mínimo 3 caracteres.')
+        });
+
+        await schema.validate(data, { abortEarly: false });
 
         const SituationRepository = AppDataSource.getRepository(Situation);
 
@@ -140,6 +164,14 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
         });
 
     } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            res.status(400).json({
+                mensagem: 'Erro de validação!',
+                erros: error.errors
+            });
+            return;
+        }
 
         console.error(error);
         // Mapear o erro para uma resposta adequada
