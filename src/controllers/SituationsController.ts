@@ -7,6 +7,7 @@ import { Situation } from '../entity/Situations';
 import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from "../services/ErrorMappingService";
 import * as yup from 'yup';
+import { Not } from 'typeorm';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -95,6 +96,17 @@ router.post('/situations', async (req: Request, res: Response) => {
 
         const SituationRepository = AppDataSource.getRepository(Situation);
 
+        const existingSituation = await SituationRepository.findOneBy({
+            nameSituation: data.nameSituation
+        });
+
+        if (existingSituation) {
+            res.status(400).json({
+                mensagem: 'Já existe uma situação com esse nome!',
+            });
+            return;
+        }
+
         const newSituation = SituationRepository.create(data);
 
         await SituationRepository.save(newSituation);
@@ -150,6 +162,18 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
                 mensagem: 'Situação não encontrada!',
             });
             return
+        }
+
+        const existingSituation = await SituationRepository.findOneBy({
+            nameSituation: data.nameSituation,
+            id: Not(parseInt(id))
+        });
+
+        if (existingSituation) {
+            res.status(400).json({
+                mensagem: 'Já existe uma situação com esse nome!'
+            });
+            return;
         }
 
         // Atualiza os dados da situação
