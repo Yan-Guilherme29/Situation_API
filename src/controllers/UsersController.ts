@@ -6,6 +6,8 @@ import { Request, Response } from 'express';
 import { User } from '../entity/Users';
 import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from '../services/ErrorMappingService';
+import * as yup from 'yup';
+import { Not } from 'typeorm';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -97,8 +99,29 @@ router.post('/users', async (req: Request, res: Response) => {
 
         const data = req.body;
 
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            name: yup.string().required('O nome é obrigatório.').min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+            email: yup.string().email('O e-mail deve ser válido.').required('O e-mail é obrigatório.'),
+            situationId: yup.number().required('O ID da situação é obrigatório.')
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
         // Obter o repositório da entidade User
         const userRepository = AppDataSource.getRepository(User);
+
+        // Recuperar o usuário existente com o mesmo e-mail, se houver
+        const existingUser = await userRepository.findOneBy({ email: data.email });
+
+        // Verificar se já existe um usuário com o mesmo e-mail
+        if (existingUser) {
+            res.status(400).json({
+                mensagem: 'Já existe um usuário com este e-mail.'
+            });
+            return
+        }
 
         // Criar um novo usuário
         const newUser = userRepository.create(data);
@@ -114,6 +137,17 @@ router.post('/users', async (req: Request, res: Response) => {
         return
 
     } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            // Se for um erro de validação do Yup, retornar os erros de validação
+            const validationErrors = error.inner.map(err => ({
+                mensagem: err.message,
+            }));
+
+            // Retornar a resposta com os erros de validação
+            res.status(400).json({ erros: validationErrors });
+            return
+        }
 
         console.error(error);
         // Mapear o erro para uma resposta adequada
@@ -137,6 +171,16 @@ router.put('/users/:id', async(req: Request, res: Response) => {
         // Obter os dados do corpo da requisição
         const data = req.body;
 
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            name: yup.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+            email: yup.string().email('O e-mail deve ser válido.'),
+            situationId: yup.number(),
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
         // Obter o repositório da entidade User
         const userRepository = AppDataSource.getRepository(User);
 
@@ -147,6 +191,16 @@ router.put('/users/:id', async(req: Request, res: Response) => {
         if (!user) {
             res.status(404).json({
                 mensagem: 'Usuário não encontrado!'
+            });
+            return
+        }
+
+        // Verificar se o e-mail fornecido já está em uso por outro usuário
+        const existingUserWithEmail = await userRepository.findOneBy({ email: data.email, id: Not(parseInt(id)) });
+
+        if (existingUserWithEmail) {
+            res.status(400).json({
+                mensagem: 'Já existe outro usuário com este e-mail.'
             });
             return
         }
@@ -165,6 +219,14 @@ router.put('/users/:id', async(req: Request, res: Response) => {
         return
 
     } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            // Se for um erro de validação do Yup, retornar os erros de validação
+            const validationErrors = error.inner.map(err => ({
+                mensagem: err.message,
+            }));
+            return;
+        }
 
         console.error(error);
         // Mapear o erro para uma resposta adequada
