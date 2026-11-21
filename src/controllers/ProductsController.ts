@@ -6,6 +6,9 @@ import { Request, Response } from 'express';
 import { Product } from '../entity/Products';
 import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from '../services/ErrorMappingService';
+import yup from 'yup';
+import slugify from 'slugify';
+import { Not } from 'typeorm';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -98,8 +101,58 @@ router.post('/products', async (req: Request, res: Response) => {
 
         const data = req.body;
 
+        const schema = yup.object().shape({
+            name: yup
+            .string()
+            .required('O nome do produto é obrigatório.')
+            .min(3, 'O nome do produto deve ter no mínimo 3 caracteres.')
+            .max(255, 'O nome do produto deve ter no máximo 255 caracteres.'),
+
+            slug: yup
+            .string()
+            .required('O slug do produto é obrigatório.')
+            .min(3, 'O slug do produto deve ter no mínimo 3 caracteres.')
+            .max(255, 'O slug do produto deve ter no máximo 255 caracteres.'),
+
+            description: yup
+            .string()
+            .required('A descrição do produto é obrigatória.')
+            .min(3, 'A descrição do produto deve ter no mínimo 3 caracteres.')
+            .max(255, 'A descrição do produto deve ter no máximo 255 caracteres.'),
+
+            price: yup
+            .number()
+            .typeError('O preço do produto deve ser um número.')
+            .required('O preço do produto é obrigatório.')
+            .positive('O preço do produto deve ser um número positivo.'),
+
+            situation: yup
+            .number()
+            .typeError('A situação do produto deve ser um número.')
+            .required('A situação do produto é obrigatória.')
+            .positive('A situação do produto deve ser um número positivo.'),
+
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
+        // Gerar slug automaticamente com base no nome do produto, caso não seja fornecido
+        data.slug = slugify(data.slug, { lower: true, strict: true });
+
         // Obter o repositório da entidade Product
         const productRepository = AppDataSource.getRepository(Product);
+
+        // Recuperar o registro do banco de dados com o valor da coluna email
+        const existingProduct = await productRepository.findOneBy({ slug: data.slug });
+
+        // Verificar se o produto já existe
+        if (existingProduct) {
+            res.status(409).json({
+                mensagem: 'Já existe um produto com esse slug!'
+            });
+            return
+        }
 
         // Criar um novo produto
         const newProduct = productRepository.create(data);
@@ -115,6 +168,15 @@ router.post('/products', async (req: Request, res: Response) => {
         return
 
     } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            // Retornar os erros de validação
+            res.status(400).json({
+                mensagem: 'Erro de validação.',
+                erros: error.errors,
+            });
+            return
+        }
 
         console.error(error);
         // Mapear o erro para uma resposta adequada
@@ -138,6 +200,43 @@ router.put('/products/:id', async(req: Request, res: Response) => {
         // Obter os dados do corpo da requisição
         const data = req.body;
 
+        // Validar os dados recebidos com yup
+        const schema = yup.object().shape({
+            name: yup
+            .string()
+            .required('O nome do produto é obrigatório.')
+            .min(3, 'O nome do produto deve ter no mínimo 3 caracteres.')
+            .max(255, 'O nome do produto deve ter no máximo 255 caracteres.'),
+
+            slug: yup
+            .string()
+            .required('O slug do produto é obrigatório.')
+            .min(3, 'O slug do produto deve ter no mínimo 3 caracteres.')
+            .max(255, 'O slug do produto deve ter no máximo 255 caracteres.'),
+
+            description: yup
+            .string()
+            .required('A descrição do produto é obrigatória.')
+            .min(3, 'A descrição do produto deve ter no mínimo 3 caracteres.')
+            .max(255, 'A descrição do produto deve ter no máximo 255 caracteres.'),
+
+            price: yup
+            .number()
+            .typeError('O preço do produto deve ser um número.')
+            .required('O preço do produto é obrigatório.')
+            .positive('O preço do produto deve ser um número positivo.'),
+
+            situation: yup
+            .number()
+            .typeError('A situação do produto deve ser um número.')
+            .required('A situação do produto é obrigatória.')
+            .positive('A situação do produto deve ser um número positivo.'),
+
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
         // Obter o repositório da entidade Product
         const productRepository = AppDataSource.getRepository(Product);
 
@@ -148,6 +247,20 @@ router.put('/products/:id', async(req: Request, res: Response) => {
         if (!product) {
             res.status(404).json({
                 mensagem: 'Produto não encontrado!'
+            });
+            return
+        }
+
+        // Gerar slug automaticamente com base no nome do produto, caso não seja fornecido
+        data.slug = slugify(data.slug, { lower: true, strict: true });
+
+        // Recuperar o registro do banco de dados com o valor da coluna slug
+        const existingProduct = await productRepository.findOneBy({ slug: data.slug, id: Not(parseInt(id)) });
+
+        // Verificar se o slug já está em uso por outro produto
+        if (existingProduct) {
+            res.status(400).json({
+                mensagem: 'O slug do produto já está em uso!'
             });
             return
         }
@@ -166,6 +279,15 @@ router.put('/products/:id', async(req: Request, res: Response) => {
         return
 
     } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            // Retornar os erros de validação
+            res.status(400).json({
+                mensagem: 'Erro de validação.',
+                erros: error.errors,
+            });
+            return
+        }
 
         console.error(error);
         // Mapear o erro para uma resposta adequada

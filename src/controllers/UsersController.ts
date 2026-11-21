@@ -104,7 +104,7 @@ router.post('/users', async (req: Request, res: Response) => {
             name: yup.string().required('O nome é obrigatório.').min(3, 'O nome deve ter pelo menos 3 caracteres.'),
             email: yup.string().email('O e-mail deve ser válido.').required('O e-mail é obrigatório.'),
             password: yup.string().required('A senha é obrigatória.').min(6, 'A senha deve ter pelo menos 6 caracteres.'),
-            situationId: yup.number().required('O ID da situação é obrigatório.')
+            situation: yup.number().required('O ID da situação é obrigatório.')
         });
 
         // Validar os dados recebidos
