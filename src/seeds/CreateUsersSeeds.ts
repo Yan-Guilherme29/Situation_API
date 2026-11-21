@@ -2,6 +2,9 @@
 import { AppDataSource } from '../data-source';
 import { DataSource } from 'typeorm';
 
+// Importar bcrypt para criptografia de senhas
+import bcrypt from 'bcryptjs';
+
 // Importar a entidade User
 import { User } from '../entity/Users';
 import { Situation } from '../entity/Situations';
@@ -39,7 +42,7 @@ export default class CreateUsersSeeds {
                 id: 1,
                 name: 'Admin User',
                 email: 'admin@example.com',
-                password: 'adminpassword',
+                password: await bcrypt.hash('adminpassword', 10),
                 situation: situations[0], 
             }
         ];

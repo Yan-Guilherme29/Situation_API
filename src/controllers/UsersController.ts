@@ -8,6 +8,7 @@ import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from '../services/ErrorMappingService';
 import * as yup from 'yup';
 import { Not } from 'typeorm';
+import bcrypt from 'bcryptjs';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -124,6 +125,9 @@ router.post('/users', async (req: Request, res: Response) => {
             return
         }
 
+        // Criptografar a senha antes de salvar no banco de dados
+        data.password = await bcrypt.hash(data.password, 10);
+
         // Criar um novo usuário
         const newUser = userRepository.create(data);
 
@@ -157,6 +161,69 @@ router.post('/users', async (req: Request, res: Response) => {
 
     }
 
+});
+
+router.put('/users-password/:id', async (req: Request, res: Response) => {
+    try {
+        // Obter o ID do usuário a ser atualizado
+        const idParam = req.params.id;
+        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+
+        // Obter os dados do corpo da requisição
+        const data = req.body;
+
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            password: yup.string().required('A senha é obrigatória.').min(6, 'A senha deve ter pelo menos 6 caracteres.'),
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
+        // Obter o repositório da entidade User
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Buscar o usuário pelo ID
+        const user = await userRepository.findOneBy({ id: parseInt(id) });
+
+        // Verificar se o usuário foi encontrado
+        if (!user) {
+            res.status(404).json({
+                mensagem: 'Usuário não encontrado!'
+            });
+            return
+        }
+
+        // Criptografar a nova senha antes de salvar no banco de dados
+        user.password = await bcrypt.hash(data.password, 10);
+
+        // Salvar as alterações no banco de dados
+        const updatedUser = await userRepository.save(user);
+
+        // Retornar a resposta com o usuário atualizado
+        res.status(200).json({
+            mensagem: 'Senha do usuário atualizada com sucesso!',
+            usuario: updatedUser,
+        });
+        return
+
+    } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            // Se for um erro de validação do Yup, retornar os erros de validação
+            const validationErrors = error.inner.map(err => ({
+                mensagem: err.message,
+            }));
+            res.status(400).json({ erros: validationErrors });
+            return;
+        }
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
+
+    }
 });
 
 // Criar a rota para atualizar um usuário existente
