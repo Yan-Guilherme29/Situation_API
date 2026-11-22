@@ -4,11 +4,11 @@ import express from 'express';
 // Importar variáveis de ambiente
 import dotenv from 'dotenv';
 
-// Importar a biblioteca para permitir conexão externa
-import corse from 'cors';
-
 // Carregar variáveis de ambiente do arquivo .env
 dotenv.config();
+
+// Importar a biblioteca para permitir conexão externa
+import corse from 'cors';
 
 // Criar Aplicação Express
 const app = express();
@@ -24,7 +24,7 @@ app.set('json spaces', 2);
 
 // Inclurir os Controllers
 import TestConnectionController from './controllers/TestConnectionController.js';
-import AuthController from './controllers/TestConnectionController.js';
+import AuthController from './controllers/AuthController.js';
 import SituationsController from './controllers/SituationsController.js';
 import ProductCategoriesController from './controllers/ProductCategoriesController.js';
 import ProductSituationsController from './controllers/ProductSituationsController.js';

@@ -1,5 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from "typeorm";
 import { Situation } from "./Situations";
+import bcrypt from 'bcryptjs';
 
 @Entity('users')
 export class User {
@@ -24,5 +25,10 @@ export class User {
 
     @Column({type: 'timestamp', default: () => "CURRENT TIMESTAMP", onUpdate: "CURRENT TIMESTAMP"})
     updatedAt!: Date;
+
+    // Método para verificar se a senha fornecida corresponde à senha armazenada no banco de dados
+    async comparePassword(password: string): Promise<boolean> {
+        return bcrypt.compare(password, this.password);
+    }
 }
 
