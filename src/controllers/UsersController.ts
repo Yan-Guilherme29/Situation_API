@@ -1,4 +1,3 @@
-// Biblioteca Express
 
 import express from 'express';
 import { AppDataSource } from '../data-source';
@@ -9,12 +8,13 @@ import { ErrorMappingService } from '../services/ErrorMappingService';
 import * as yup from 'yup';
 import { Not } from 'typeorm';
 import bcrypt from 'bcryptjs';
+import { verifyToken } from '../middlewares/authMiddlewares';
 
 // Criar Aplicação Express
 const router = express.Router();
 
 // Criar a rota para listar usuários com paginação
-router.get('/users', async (req: Request, res: Response) => {
+router.get('/users', verifyToken, async (req: Request, res: Response) => {
 
     try {
 
@@ -46,7 +46,7 @@ router.get('/users', async (req: Request, res: Response) => {
 });
 
 // Criar a rota para buscar um usuário pelo ID
-router.get('/users/:id', async (req: Request, res: Response) => {
+router.get('/users/:id', verifyToken, async (req: Request, res: Response) => {
 
     try {
 
@@ -94,7 +94,7 @@ router.get('/users/:id', async (req: Request, res: Response) => {
 });
 
 // Criar a rota para criar um novo usuário
-router.post('/users', async (req: Request, res: Response) => {
+router.post('/users', verifyToken, async (req: Request, res: Response) => {
 
     try {
 
@@ -163,7 +163,7 @@ router.post('/users', async (req: Request, res: Response) => {
 
 });
 
-router.put('/users-password/:id', async (req: Request, res: Response) => {
+router.put('/users-password/:id', verifyToken, async (req: Request, res: Response) => {
     try {
         // Obter o ID do usuário a ser atualizado
         const idParam = req.params.id;
@@ -227,7 +227,7 @@ router.put('/users-password/:id', async (req: Request, res: Response) => {
 });
 
 // Criar a rota para atualizar um usuário existente
-router.put('/users/:id', async(req: Request, res: Response) => {
+router.put('/users/:id', verifyToken, async(req: Request, res: Response) => {
 
     try {
 
@@ -306,7 +306,7 @@ router.put('/users/:id', async(req: Request, res: Response) => {
 });
 
 // Criar a rota para deletar um usuário existente
-router.delete('/users/:id', async (req: Request, res: Response) => {
+router.delete('/users/:id', verifyToken, async (req: Request, res: Response) => {
 
     try {
 
