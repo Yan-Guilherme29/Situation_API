@@ -1,7 +1,12 @@
-// Biblioteca Express
+
 import express from 'express';
 import type { Request, Response } from 'express';
 import { AuthService } from '../services/AuthService';
+import { ErrorMappingService } from '../services/ErrorMappingService';
+import * as yup from 'yup';
+import { AppDataSource } from '../data-source';
+import { User } from '../entity/Users';
+import crypto from "crypto";
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -42,6 +47,69 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
 })
+
+// Rota para recuperar senha
+router.post("/recover-password", async (req: Request, res: Response) => {
+
+    try {
+
+        var data = req.body
+
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            email: yup.string().email('O e-mail deve ser válido.').required('O e-mail é obrigatório.'),
+            urlRecoverPassword: yup.string().required("O campo URL é obrigatório!")
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
+        // Obter o repositório da entidade User
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Recuperar o registro do banco de dados com o valor da coluna email
+        const user = await userRepository.findOneBy({ email: data.email });
+
+        // Verificar se já existe um usuário com o mesmo e-mail
+        if (!user) {
+            res.status(404).json({
+                mensagem: 'Usuário não encontrado!'
+            });
+            return
+        }
+
+        // Gera um token seguro de 64 caracteres
+        user.recoverPassword = crypto.randomBytes(32).toString("hex");
+
+        // Salvar as alterações no banco de dados
+        await userRepository.save(user);
+
+        // Retornar resposta de sucesso
+        res.status(200).json({
+            message: "Gerado o link para recuperar a senha!",
+            urlRecoverPassword: `${data.urlRecoverPassword}?email=${data.email}&key=${user.recoverPassword}`,
+            key: user.recoverPassword
+        })
+
+
+
+    } catch (error: any) {
+
+        if (error instanceof yup.ValidationError) {
+            res.status(400).json({
+                message: error.errors
+            });
+            return;
+        }
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
+
+    }
+
+});
 
 // Exportar o roteador
 export default router;

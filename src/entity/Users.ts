@@ -13,6 +13,9 @@ export class User {
     @Column({unique: true})
     email!: string;
 
+    @Column({unique: true})
+    recoverPassword!: string;
+
     @Column()
     password!: string;
 
