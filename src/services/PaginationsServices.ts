@@ -7,6 +7,7 @@ interface PaginationResult <T> {
     currentPage: number;
     lastPage: number;
     totalRecords: number;
+    relations?: string[];
 }
 
 export class PaginationService {
@@ -15,7 +16,7 @@ export class PaginationService {
         page: number =1,
         limit: number = 10,
         order: FindOptionsOrder<T> = {},
-        relations: FindOptionsRelations<T> = {}
+        relations?: string[]
 
 
 
@@ -36,7 +37,7 @@ export class PaginationService {
             take: limit,
             skip: offset,
             order,
-            relations
+            relations: relations as FindOptionsRelations<T> | undefined,
         });
 
         return {

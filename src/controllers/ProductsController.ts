@@ -28,7 +28,7 @@ router.get('/products', async (req: Request, res: Response) => {
         const limit = Number(req.query.limit) || 10;
 
         // Chamar o serviço de paginação para obter os produtos com as relações de categoria e situação
-        const result = await PaginationService.paginate(productRepository, page, limit, {id: 'DESC'}, {category: true, situation: true});
+        const result = await PaginationService.paginate(productRepository, page, limit, { id: 'DESC' }, ['situation', 'category']);
 
         // Retornar a resposta com os produtos e informações de paginação
         res.status(200).json(result);
@@ -59,11 +59,8 @@ router.get('/products/:id', async (req: Request, res: Response) => {
         // Buscar o produto pelo ID com as relações de categoria e situação
         const product = await productRepository.findOne({
 
+            relations: { situation: true, category: true },
             where: { id: parseInt(id) },
-            relations: {
-                category: true,
-                situation: true
-            }
 
         });
 

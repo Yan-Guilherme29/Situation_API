@@ -28,7 +28,7 @@ router.get('/users', verifyToken, async (req: Request, res: Response) => {
         const limit = Number(req.query.limit) || 10;
 
         // Chamar o serviço de paginação para obter os usuários com as relações de situação
-        const result = await PaginationService.paginate(userRepository, page, limit, {id: 'DESC'}, {situation: true});
+        const result = await PaginationService.paginate(userRepository, page, limit, {id: 'DESC'}, ["situations"]);
 
         // Retornar a resposta com os usuários e informações de paginação
         res.status(200).json(result);
