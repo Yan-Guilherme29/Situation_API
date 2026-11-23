@@ -7,7 +7,6 @@ import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from '../services/ErrorMappingService';
 import * as yup from 'yup';
 import { Not } from 'typeorm';
-import bcrypt from 'bcryptjs';
 import { verifyToken } from '../middlewares/authMiddlewares';
 import { Situation } from '../entity/Situations';
 
@@ -126,8 +125,26 @@ router.post('/users', verifyToken, async (req: Request, res: Response) => {
             return
         }
 
+        // Obtém o repositório da entidade Situation
+        const situationRepository = AppDataSource.getRepository(Situation);
+
+        // Busca a situação informada pelo usuário no banco de dados
+        const situation = await situationRepository.findOneBy({ id: data.situation });
+
+        if (!situation) {
+            res.status(404).json({
+                mensagem: 'Situação não encontrada!'
+            });
+            return;
+        }
+
         // Criar um novo usuário
-        const newUser = userRepository.create(data);
+        const newUser = userRepository.create({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            situation,
+        });
 
         // Salvar o novo usuário no banco de dados
         const savedUser = await userRepository.save(newUser);
@@ -193,7 +210,7 @@ router.put('/users-password/:id', verifyToken, async (req: Request, res: Respons
             return
         }
 
-        user.password = await bcrypt.hash(data.password, 10);
+        user.password = data.password;
 
         // Salvar as alterações no banco de dados
         const updatedUser = await userRepository.save(user);
@@ -264,6 +281,7 @@ router.put('/users/:id', verifyToken, async (req: Request, res: Response) => {
             return
         }
 
+        // 
         if (data.email) {
             const existingUserWithEmail = await userRepository.findOneBy({
                 email: data.email,
@@ -278,8 +296,29 @@ router.put('/users/:id', verifyToken, async (req: Request, res: Response) => {
             }
         }
 
-        // Atualizar os dados do usuário
-        userRepository.merge(user, data);
+        // Atualizar apenas os dados permitidos pelo endpoint
+        if (data.name !== undefined) {
+            user.name = data.name;
+        }
+
+        if (data.email !== undefined) {
+            user.email = data.email;
+        }
+
+        if (data.situationId !== undefined) {
+            const situation = await AppDataSource.getRepository(Situation).findOneBy({
+                id: data.situationId
+            });
+
+            if (!situation) {
+                res.status(404).json({
+                    mensagem: 'Situação não encontrada!'
+                });
+                return;
+            }
+
+            user.situation = situation;
+        }
 
         // Salvar as alterações no banco de dados
         const updatedUser = await userRepository.save(user);

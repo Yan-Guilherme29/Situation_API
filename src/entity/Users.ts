@@ -30,14 +30,13 @@ export class User {
     updatedAt!: Date;
 
     @BeforeInsert()
-    
-
     @BeforeUpdate()
-    async hashPassword(): Promise<void> {
-        if (this.password) {
+    async hashPassword(): Promise<void>{
+        if(this.password){
             this.password = await bcrypt.hash(this.password, 10)
         }
     }
+
 
     // Método para verificar se a senha fornecida corresponde à senha armazenada no banco de dados
     async comparePassword(password: string): Promise<boolean> {
