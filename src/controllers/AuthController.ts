@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import { AppDataSource } from '../data-source';
 import { User } from '../entity/Users';
 import crypto from "crypto";
+import nodemailer from 'nodemailer';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -83,6 +84,45 @@ router.post("/recover-password", async (req: Request, res: Response) => {
 
         // Salvar as alterações no banco de dados
         await userRepository.save(user);
+
+        // Criar a variável com as credenciais do servidor para enviar o e-mail
+        const transporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: Number(process.env.EMAIL_PORT),
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        // Criar a variável com o conteúdo do e-mail
+        var message_content = {
+            from: process.env.EMAIL_FROM,
+            to: data.email,
+            subject: "Recuperar senha",
+            text: "teste",
+            html: "teste"
+
+        }
+
+        transporter.sendMail(message_content, function (err) {
+            if (err) {
+                console.log("Erro ao enviar email", err);
+                res.status(200).json({
+                    message: `E-mail não enviado, tente novamente!`,
+                });
+                return;
+            } else {
+                res.status(200).json({
+                    message: "Email enviado! Verifique sua caixa de entrada!",
+                    urlRecoverPassword: `${data.urlRecoverPassword}?email=${data.email}&key=${user.recoverPassword}`,
+                });
+                return;
+            }
+        });
+
+
 
         // Retornar resposta de sucesso
         res.status(200).json({
