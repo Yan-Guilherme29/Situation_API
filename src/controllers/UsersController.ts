@@ -264,14 +264,18 @@ router.put('/users/:id', verifyToken, async (req: Request, res: Response) => {
             return
         }
 
-        // Verificar se o e-mail fornecido já está em uso por outro usuário
-        const existingUserWithEmail = await userRepository.findOneBy({ email: data.email, id: Not(parseInt(id)) });
-
-        if (existingUserWithEmail) {
-            res.status(400).json({
-                mensagem: 'Já existe outro usuário com este e-mail.'
+        if (data.email) {
+            const existingUserWithEmail = await userRepository.findOneBy({
+                email: data.email,
+                id: Not(parseInt(id))
             });
-            return
+
+            if (existingUserWithEmail) {
+                res.status(400).json({
+                    mensagem: 'Já existe outro usuário com este e-mail.'
+                });
+                return;
+            }
         }
 
         // Atualizar os dados do usuário
