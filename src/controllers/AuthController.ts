@@ -186,7 +186,7 @@ router.post("/recover-password", async (req: Request, res: Response) => {
         transporter.sendMail(message_content, function (err) {
             if (err) {
                 console.log("Erro ao enviar email", err);
-                res.status(200).json({
+                res.status(500).json({
                     message: `E-mail não enviado, tente novamente!`,
                 });
                 return;
@@ -198,17 +198,6 @@ router.post("/recover-password", async (req: Request, res: Response) => {
                 return;
             }
         });
-
-
-
-        // Retornar resposta de sucesso
-        res.status(200).json({
-            message: "Gerado o link para recuperar a senha!",
-            urlRecoverPassword: `${data.urlRecoverPassword}?email=${data.email}&key=${user.recoverPassword}`,
-            key: user.recoverPassword
-        })
-
-
 
     } catch (error: any) {
 
