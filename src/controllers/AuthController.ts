@@ -6,8 +6,9 @@ import { ErrorMappingService } from '../services/ErrorMappingService';
 import * as yup from 'yup';
 import { AppDataSource } from '../data-source';
 import { User } from '../entity/Users';
-import crypto from "crypto";
+import crypto, { verify } from "crypto";
 import nodemailer from 'nodemailer';
+import { verifyToken } from '../middlewares/authMiddlewares';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -47,7 +48,83 @@ router.post('/login', async (req: Request, res: Response) => {
 
     }
 
-})
+});
+
+// Criar rota para validar Token
+router.get("/validate-token", verifyToken, async (req: Request, res: Response)=> {
+    res.status(200).json({
+        message: "Token válido!",
+        userId: (req as any).user.id
+    });
+
+});
+
+// Rota pública para cadastro de usuários
+router.post('/new-users', async (req: Request, res: Response) => {
+
+    try {
+
+        const data = req.body;
+
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            name: yup.string().required('O nome é obrigatório.').min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+            email: yup.string().email('O e-mail deve ser válido.').required('O e-mail é obrigatório.'),
+            password: yup.string().required('A senha é obrigatória.').min(6, 'A senha deve ter pelo menos 6 caracteres.'),
+            situation: yup.number().required('O ID da situação é obrigatório.')
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
+        // Obter o repositório da entidade User
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Recuperar o usuário existente com o mesmo e-mail, se houver
+        const existingUser = await userRepository.findOneBy({ email: data.email });
+
+        // Verificar se já existe um usuário com o mesmo e-mail
+        if (existingUser) {
+            res.status(400).json({
+                mensagem: 'Já existe um usuário com este e-mail.'
+            });
+            return
+        }
+
+        // Criar um novo usuário
+        const newUser = userRepository.create(data);
+
+        // Salvar o novo usuário no banco de dados
+        const savedUser = await userRepository.save(newUser);
+
+        // Retornar a resposta com o usuário criado
+        res.status(201).json({
+            mensagem: 'Usuário criado com sucesso!',
+            usuario: savedUser,
+        });
+        return
+
+    } catch (error) {
+
+        if (error instanceof yup.ValidationError) {
+            // Se for um erro de validação do Yup, retornar os erros de validação
+            const validationErrors = error.inner.map(err => ({
+                mensagem: err.message,
+            }));
+
+            // Retornar a resposta com os erros de validação
+            res.status(400).json({ erros: validationErrors });
+            return
+        }
+
+        console.error(error);
+        // Mapear o erro para uma resposta adequada
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
+
+    }
+
+});
 
 // Rota para recuperar senha
 router.post("/recover-password", async (req: Request, res: Response) => {
@@ -261,6 +338,8 @@ router.put("/update-password", async (req: Request, res: Response) => {
         });
     }
 });
+
+
 
 
 // Exportar o roteador
