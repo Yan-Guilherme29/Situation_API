@@ -125,9 +125,6 @@ router.post('/users', verifyToken, async (req: Request, res: Response) => {
             return
         }
 
-        // Criptografar a senha antes de salvar no banco de dados
-        data.password = await bcrypt.hash(data.password, 10);
-
         // Criar um novo usuário
         const newUser = userRepository.create(data);
 
@@ -193,9 +190,6 @@ router.put('/users-password/:id', verifyToken, async (req: Request, res: Respons
             });
             return
         }
-
-        // Criptografar a nova senha antes de salvar no banco de dados
-        user.password = await bcrypt.hash(data.password, 10);
 
         // Salvar as alterações no banco de dados
         const updatedUser = await userRepository.save(user);

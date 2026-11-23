@@ -151,5 +151,117 @@ router.post("/recover-password", async (req: Request, res: Response) => {
 
 });
 
+router.post("/validate-recover-password", async (req: Request, res: Response) => {
+
+    try {
+
+        var data = req.body
+
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            email: yup.string().email('O e-mail deve ser válido.').required('O e-mail é obrigatório.'),
+            recoverPassword: yup.string().required("A chave é obrigatória!")
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
+        // Obter o repositório da entidade User
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Recuperar o registro do banco de dados com o valor da coluna email
+        const user = await userRepository.findOneBy({ email: data.email, recoverPassword: data.recoverPassword });
+
+
+        if (!user) {
+            res.status(404).json({
+                mensagem: 'A chave recuperar senha é inválida!'
+            });
+            return
+        }
+
+        res.status(200).json({
+            message: "A chave recuperar senha é válida!"
+        })
+
+    } catch (error: any) {
+
+        if (error instanceof yup.ValidationError) {
+            res.status(400).json({
+                message: error.errors
+            });
+            return;
+        }
+
+        res.status(404).json({
+            mensagem: 'A chave recuperar senha é inválida!'
+        });
+
+
+    }
+
+});
+
+router.put("/update-password", async (req: Request, res: Response) => {
+
+    try {
+        var data = req.body
+
+        // Validar dados recebidos usando Yup
+        const schema = yup.object().shape({
+            email: yup.string().email('O e-mail deve ser válido.').required('O e-mail é obrigatório.'),
+            recoverPassword: yup.string().required("A chave é obrigatória!"),
+            password: yup.string().required('A senha é obrigatória.').min(6, 'A senha deve ter pelo menos 6 caracteres.'),
+        });
+
+        // Validar os dados recebidos
+        await schema.validate(data, { abortEarly: false });
+
+        // Obter o repositório da entidade User
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Recuperar o registro do banco de dados com o valor da coluna email
+        const user = await userRepository.findOneBy({ email: data.email, recoverPassword: data.recoverPassword });
+
+        // Verificar se já existe um usuário com o mesmo e-mail
+        if (!user) {
+            res.status(404).json({
+                mensagem: 'A chave para recuperar senha é inválida!'
+            });
+            return
+        }
+
+        // Atribuir valor nulo para a coluna recoverPassword
+        data.recoverPassword = null
+
+        // Atualizar os dados do usuário
+        userRepository.merge(user, data)
+
+        // Salvar alterações no banco de dados
+        await userRepository.save(user)
+
+        res.status(200).json({
+            message: "Senha atual atualizada com sucesso!"
+        });
+        return;
+
+
+
+    } catch (error: any) {
+
+        if (error instanceof yup.ValidationError) {
+            res.status(400).json({
+                message: error.errors
+            });
+            return;
+        }
+
+        res.status(500).json({
+            mensagem: 'A chave recuperar senha é inválida!'
+        });
+    }
+});
+
+
 // Exportar o roteador
 export default router;
