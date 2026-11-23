@@ -161,6 +161,7 @@ router.post('/users', verifyToken, async (req: Request, res: Response) => {
 
 });
 
+// Atualiza a senha do usuário informado após validar os dados recebidos.
 router.put('/users-password/:id', verifyToken, async (req: Request, res: Response) => {
     try {
         // Obter o ID do usuário a ser atualizado
@@ -211,8 +212,10 @@ router.put('/users-password/:id', verifyToken, async (req: Request, res: Respons
             const validationErrors = error.inner.map(err => ({
                 mensagem: err.message,
             }));
+
+            // Retornar a resposta com os erros de validação
             res.status(400).json({ erros: validationErrors });
-            return;
+            return
         }
 
         console.error(error);
@@ -221,10 +224,11 @@ router.put('/users-password/:id', verifyToken, async (req: Request, res: Respons
         res.status(status).json({ mensagem: message });
 
     }
+
 });
 
 // Criar a rota para atualizar um usuário existente
-router.put('/users/:id', verifyToken, async(req: Request, res: Response) => {
+router.put('/users/:id', verifyToken, async (req: Request, res: Response) => {
 
     try {
 
@@ -290,7 +294,10 @@ router.put('/users/:id', verifyToken, async(req: Request, res: Response) => {
             const validationErrors = error.inner.map(err => ({
                 mensagem: err.message,
             }));
-            return;
+
+            // Retornar a resposta com os erros de validação
+            res.status(400).json({ erros: validationErrors });
+            return
         }
 
         console.error(error);
