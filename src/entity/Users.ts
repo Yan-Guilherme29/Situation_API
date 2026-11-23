@@ -30,6 +30,7 @@ export class User {
     updatedAt!: Date;
 
     @BeforeInsert()
+    
 
     @BeforeUpdate()
     async hashPassword(): Promise<void> {

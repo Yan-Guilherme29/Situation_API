@@ -16,7 +16,7 @@ export class PaginationService {
         page: number =1,
         limit: number = 10,
         order: FindOptionsOrder<T> = {},
-        relations?: string[]
+        relations?: FindOptionsRelations<T>
 
 
 
@@ -37,7 +37,6 @@ export class PaginationService {
             take: limit,
             skip: offset,
             order,
-            relations: relations as FindOptionsRelations<T> | undefined,
         });
 
         return {

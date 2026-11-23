@@ -9,6 +9,7 @@ import * as yup from 'yup';
 import { Not } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import { verifyToken } from '../middlewares/authMiddlewares';
+import { Situation } from '../entity/Situations';
 
 // Criar Aplicação Express
 const router = express.Router();
@@ -28,7 +29,7 @@ router.get('/users', verifyToken, async (req: Request, res: Response) => {
         const limit = Number(req.query.limit) || 10;
 
         // Chamar o serviço de paginação para obter os usuários com as relações de situação
-        const result = await PaginationService.paginate(userRepository, page, limit, {id: 'DESC'}, ["situations"]);
+        const result = await PaginationService.paginate(userRepository, page, limit, { id: 'DESC' }, { situation: true });
 
         // Retornar a resposta com os usuários e informações de paginação
         res.status(200).json(result);
@@ -190,6 +191,8 @@ router.put('/users-password/:id', verifyToken, async (req: Request, res: Respons
             });
             return
         }
+
+        user.password = await bcrypt.hash(data.password, 10);
 
         // Salvar as alterações no banco de dados
         const updatedUser = await userRepository.save(user);
