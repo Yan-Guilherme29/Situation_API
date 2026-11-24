@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import { Product } from '../entity/Products';
 import { PaginationService } from '../services/PaginationsServices';
 import { ErrorMappingService } from '../services/ErrorMappingService';
-import yup from 'yup';
+import * as yup from 'yup';
 import slugify from 'slugify';
 import { Not } from 'typeorm';
 
@@ -111,18 +111,6 @@ router.post('/products', async (req: Request, res: Response) => {
             .min(3, 'O slug do produto deve ter no mínimo 3 caracteres.')
             .max(255, 'O slug do produto deve ter no máximo 255 caracteres.'),
 
-            description: yup
-            .string()
-            .required('A descrição do produto é obrigatória.')
-            .min(3, 'A descrição do produto deve ter no mínimo 3 caracteres.')
-            .max(255, 'A descrição do produto deve ter no máximo 255 caracteres.'),
-
-            price: yup
-            .number()
-            .typeError('O preço do produto deve ser um número.')
-            .required('O preço do produto é obrigatório.')
-            .positive('O preço do produto deve ser um número positivo.'),
-
             situation: yup
             .number()
             .typeError('A situação do produto deve ser um número.')
@@ -140,7 +128,7 @@ router.post('/products', async (req: Request, res: Response) => {
         // Obter o repositório da entidade Product
         const productRepository = AppDataSource.getRepository(Product);
 
-        // Recuperar o registro do banco de dados com o valor da coluna email
+        // Recuperar o registro do banco de dados com o valor da coluna slug
         const existingProduct = await productRepository.findOneBy({ slug: data.slug });
 
         // Verificar se o produto já existe
@@ -211,18 +199,6 @@ router.put('/products/:id', async(req: Request, res: Response) => {
             .min(3, 'O slug do produto deve ter no mínimo 3 caracteres.')
             .max(255, 'O slug do produto deve ter no máximo 255 caracteres.'),
 
-            description: yup
-            .string()
-            .required('A descrição do produto é obrigatória.')
-            .min(3, 'A descrição do produto deve ter no mínimo 3 caracteres.')
-            .max(255, 'A descrição do produto deve ter no máximo 255 caracteres.'),
-
-            price: yup
-            .number()
-            .typeError('O preço do produto deve ser um número.')
-            .required('O preço do produto é obrigatório.')
-            .positive('O preço do produto deve ser um número positivo.'),
-
             situation: yup
             .number()
             .typeError('A situação do produto deve ser um número.')
@@ -256,7 +232,7 @@ router.put('/products/:id', async(req: Request, res: Response) => {
 
         // Verificar se o slug já está em uso por outro produto
         if (existingProduct) {
-            res.status(400).json({
+            res.status(409).json({
                 mensagem: 'O slug do produto já está em uso!'
             });
             return

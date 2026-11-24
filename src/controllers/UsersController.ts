@@ -119,7 +119,7 @@ router.post('/users', verifyToken, async (req: Request, res: Response) => {
 
         // Verificar se já existe um usuário com o mesmo e-mail
         if (existingUser) {
-            res.status(400).json({
+            res.status(409).json({
                 mensagem: 'Já existe um usuário com este e-mail.'
             });
             return
@@ -289,7 +289,7 @@ router.put('/users/:id', verifyToken, async (req: Request, res: Response) => {
             });
 
             if (existingUserWithEmail) {
-                res.status(400).json({
+                res.status(409).json({
                     mensagem: 'Já existe outro usuário com este e-mail.'
                 });
                 return;

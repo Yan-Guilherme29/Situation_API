@@ -13,10 +13,10 @@ export class ProductCategory {
     @OneToMany(() => Product, (product) => product.category)
     products!: Product[];
 
-    @Column({type: 'timestamp', default: () => "CURRENT TIMESTAMP"})
+    @Column({type: 'timestamp', default: () => "CURRENT_TIMESTAMP"})
     createdAt!: Date;
 
-    @Column({type: 'timestamp', default: () => "CURRENT TIMESTAMP", onUpdate: "CURRENT TIMESTAMP"})
+    @Column({type: 'timestamp', default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP"})
     updatedAt!: Date;
 
 }

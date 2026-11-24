@@ -84,7 +84,7 @@ router.get('/situations/:id', async (req: Request, res: Response) => {
 router.post('/situations', async (req: Request, res: Response) => {
 
     try {
-        var data = req.body;
+        const data = req.body;
 
         const schema = yup.object().shape({
             nameSituation: yup.string().required('O campo "nameSituation" é obrigatório.')
@@ -101,7 +101,7 @@ router.post('/situations', async (req: Request, res: Response) => {
         });
 
         if (existingSituation) {
-            res.status(400).json({
+            res.status(409).json({
                 mensagem: 'Já existe uma situação com esse nome!',
             });
             return;
@@ -144,7 +144,7 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
         const idParam = req.params.id;
         const id = Array.isArray(idParam) ? idParam[0] : idParam;
 
-        var data = req.body;
+        const data = req.body;
 
         const schema = yup.object().shape({
             nameSituation: yup.string().required('O campo "nameSituation" é obrigatório.')
@@ -170,7 +170,7 @@ router.put('/situations/:id', async (req: Request, res: Response) => {
         });
 
         if (existingSituation) {
-            res.status(400).json({
+            res.status(409).json({
                 mensagem: 'Já existe uma situação com esse nome!'
             });
             return;

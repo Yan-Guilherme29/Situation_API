@@ -6,7 +6,7 @@ import { ErrorMappingService } from '../services/ErrorMappingService';
 import * as yup from 'yup';
 import { AppDataSource } from '../data-source';
 import { User } from '../entity/Users';
-import crypto, { verify } from "crypto";
+import crypto from "crypto";
 import nodemailer from 'nodemailer';
 import { verifyToken } from '../middlewares/authMiddlewares';
 
@@ -23,7 +23,7 @@ router.post('/login', async (req: Request, res: Response) => {
         // Verificar se o email e a senha foram fornecidos
         if (!email || !password) {
             res.status(400).json({
-                message: 'Email e senha são obrigatórios!'
+                mensagem: 'Email e senha são obrigatórios!'
             });
             return;
         }
@@ -35,14 +35,14 @@ router.post('/login', async (req: Request, res: Response) => {
         const userData = await authService.login(email, password);
 
         res.status(200).json({
-            message: 'Login realizado com sucesso!',
+            mensagem: 'Login realizado com sucesso!',
             user: userData
         });
         return;
 
     } catch (error: any) {
         res.status(401).json({
-            message: 'Erro ao realizar login!'
+            mensagem: 'Erro ao realizar login!'
         });
         return;
 
@@ -53,7 +53,7 @@ router.post('/login', async (req: Request, res: Response) => {
 // Criar rota para validar Token
 router.get("/validate-token", verifyToken, async (req: Request, res: Response)=> {
     res.status(200).json({
-        message: "Token válido!",
+        mensagem: "Token válido!",
         userId: (req as any).user.id
     });
 
@@ -85,7 +85,7 @@ router.post('/new-users', async (req: Request, res: Response) => {
 
         // Verificar se já existe um usuário com o mesmo e-mail
         if (existingUser) {
-            res.status(400).json({
+            res.status(409).json({
                 mensagem: 'Já existe um usuário com este e-mail.'
             });
             return
@@ -131,7 +131,7 @@ router.post("/recover-password", async (req: Request, res: Response) => {
 
     try {
 
-        var data = req.body
+        const data = req.body
 
         // Validar dados recebidos usando Yup
         const schema = yup.object().shape({
@@ -187,12 +187,12 @@ router.post("/recover-password", async (req: Request, res: Response) => {
             if (err) {
                 console.log("Erro ao enviar email", err);
                 res.status(500).json({
-                    message: `E-mail não enviado, tente novamente!`,
+                    mensagem: `E-mail não enviado, tente novamente!`,
                 });
                 return;
             } else {
                 res.status(200).json({
-                    message: "Email enviado! Verifique sua caixa de entrada!"
+                    mensagem: "Email enviado! Verifique sua caixa de entrada!"
                 });
                 return;
             }
@@ -202,7 +202,7 @@ router.post("/recover-password", async (req: Request, res: Response) => {
 
         if (error instanceof yup.ValidationError) {
             res.status(400).json({
-                message: error.errors
+                mensagem: error.errors
             });
             return;
         }
@@ -220,7 +220,7 @@ router.post("/validate-recover-password", async (req: Request, res: Response) =>
 
     try {
 
-        var data = req.body
+        const data = req.body
 
         // Validar dados recebidos usando Yup
         const schema = yup.object().shape({
@@ -246,31 +246,28 @@ router.post("/validate-recover-password", async (req: Request, res: Response) =>
         }
 
         res.status(200).json({
-            message: "A chave recuperar senha é válida!"
+            mensagem: "A chave recuperar senha é válida!"
         })
 
     } catch (error: any) {
 
         if (error instanceof yup.ValidationError) {
             res.status(400).json({
-                message: error.errors
+                mensagem: error.errors
             });
             return;
         }
 
-        res.status(404).json({
-            mensagem: 'A chave recuperar senha é inválida!'
-        });
-
-
+        console.error(error);
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
     }
-
 });
 
 router.put("/update-password", async (req: Request, res: Response) => {
 
     try {
-        var data = req.body
+        const data = req.body
 
         // Validar dados recebidos usando Yup
         const schema = yup.object().shape({
@@ -306,7 +303,7 @@ router.put("/update-password", async (req: Request, res: Response) => {
         await userRepository.save(user)
 
         res.status(200).json({
-            message: "Senha atual atualizada com sucesso!"
+            mensagem: "Senha atual atualizada com sucesso!"
         });
         return;
 
@@ -316,14 +313,14 @@ router.put("/update-password", async (req: Request, res: Response) => {
 
         if (error instanceof yup.ValidationError) {
             res.status(400).json({
-                message: error.errors
+                mensagem: error.errors
             });
             return;
         }
 
-        res.status(500).json({
-            mensagem: 'A chave recuperar senha é inválida!'
-        });
+        console.error(error);
+        const { status, message } = ErrorMappingService.mapErrorToResponse(error, 'usuário');
+        res.status(status).json({ mensagem: message });
     }
 });
 

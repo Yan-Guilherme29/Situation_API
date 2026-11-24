@@ -7,7 +7,6 @@ interface PaginationResult <T> {
     currentPage: number;
     lastPage: number;
     totalRecords: number;
-    relations?: string[];
 }
 
 export class PaginationService {

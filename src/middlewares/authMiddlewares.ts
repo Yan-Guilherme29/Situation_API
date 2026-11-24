@@ -24,7 +24,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
     // Verificar se o token existe
     if (!authHeader) {
         res.status(401).json({
-            message: 'Token inválido ou expirado'
+            mensagem: 'Token inválido ou expirado'
         });
         return;
     }
@@ -35,7 +35,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
     // Verificar se o formato do cabeçalho é válido
     if (bearer.toLocaleLowerCase() !== 'bearer' || !token) {
         res.status(401).json({
-            message: 'Token inválido!'
+            mensagem: 'Token inválido!'
         });
         return;
     }
@@ -57,7 +57,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
         
     } catch (error) {
         res.status(401).json({
-            message: 'Token inválido ou expirado'
+            mensagem: 'Token inválido ou expirado'
         });
     }
 }
