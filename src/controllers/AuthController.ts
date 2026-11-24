@@ -192,8 +192,7 @@ router.post("/recover-password", async (req: Request, res: Response) => {
                 return;
             } else {
                 res.status(200).json({
-                    message: "Email enviado! Verifique sua caixa de entrada!",
-                    urlRecoverPassword: `${data.urlRecoverPassword}?email=${data.email}&key=${user.recoverPassword}`,
+                    message: "Email enviado! Verifique sua caixa de entrada!"
                 });
                 return;
             }
@@ -297,11 +296,11 @@ router.put("/update-password", async (req: Request, res: Response) => {
             return
         }
 
-        // Atribuir valor nulo para a coluna recoverPassword
-        data.recoverPassword = null
-
-        // Atualizar os dados do usuário
-        userRepository.merge(user, data)
+        // Atualizar os dados apenas de password e recoverPassword do usuário
+        userRepository.merge(user, {
+            password: data.password,
+            recoverPassword: null as unknown as string
+        });
 
         // Salvar alterações no banco de dados
         await userRepository.save(user)
